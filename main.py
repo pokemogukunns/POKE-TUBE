@@ -193,6 +193,7 @@ app.mount("/sitemap", StaticFiles(directory="./sitemap", html=True), name="stati
 app.mount("/use", StaticFiles(directory="./use", html=True), name="static")
 app.mount("/invidious", StaticFiles(directory="./invidious", html=True), name="static")
 app.mount("/requestform", StaticFiles(directory="./requestform", html=True), name="static")
+app.mount("/home", StaticFiles(directory="./templares/home.html", html=True), name="static")
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 from fastapi.templating import Jinja2Templates
