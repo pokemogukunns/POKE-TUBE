@@ -185,9 +185,9 @@ if __name__ == '__main__':
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/css", StaticFiles(directory="./css"), name="static")
-app.mount("/word", StaticFiles(directory="./blog", html=True), name="static")
+app.mount("/", StaticFiles(directory="./blog", html=True), name="static")
 app.mount("/privacy", StaticFiles(directory="./privacy", html=True), name="static")
-app.mount("/", StaticFiles(directory="./pass", html=True), name="static")
+app.mount("/pass", StaticFiles(directory="./pass", html=True), name="static")
 app.mount("/contact", StaticFiles(directory="./contact", html=True), name="static")
 app.mount("/sitemap", StaticFiles(directory="./sitemap", html=True), name="static")
 app.mount("/use", StaticFiles(directory="./use", html=True), name="static")
