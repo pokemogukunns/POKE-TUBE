@@ -166,22 +166,6 @@ def get_level(word):
     return 0
 
 
-def check_cokie(cookie):
-    print(cookie)
-    if cookie == "True":
-        return True
-    return False
-
-def get_verifycode():
-    try:
-        result = subprocess.run(["./yukiverify"], encoding='utf-8', stdout=subprocess.PIPE)
-        hashed_password = result.stdout.strip()
-        return hashed_password
-    except subprocess.CalledProcessError as e:
-        print(f"Error: {e}")
-        return None
-
-
 
 
 from fastapi import FastAPI, Depends
@@ -203,7 +187,7 @@ app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/css", StaticFiles(directory="./css"), name="static")
 app.mount("/word", StaticFiles(directory="./blog", html=True), name="static")
 app.mount("/privacy", StaticFiles(directory="./privacy", html=True), name="static")
-app.mount("/pass", StaticFiles(directory="./pass", html=True), name="static")
+app.mount("/", StaticFiles(directory="./pass", html=True), name="static")
 app.mount("/contact", StaticFiles(directory="./contact", html=True), name="static")
 app.mount("/sitemap", StaticFiles(directory="./sitemap", html=True), name="static")
 app.mount("/use", StaticFiles(directory="./use", html=True), name="static")
@@ -218,13 +202,13 @@ template = Jinja2Templates(directory='templates').TemplateResponse
 
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/home", response_class=HTMLResponse)
 def home(response: Response,request: Request,yuki: Union[str] = Cookie(None)):
     if check_cokie(yuki):
         response.set_cookie("yuki","True",max_age=60 * 60 * 24 * 7)
         return template("home.html",{"request": request})
     print(check_cokie(yuki))
-    return redirect("/word")
+    return redirect("/")
 
 @app.get('/watch', response_class=HTMLResponse)
 def video(v:str,response: Response,request: Request,yuki: Union[str] = Cookie(None),proxy: Union[str] = Cookie(None)):
