@@ -9,6 +9,7 @@ import os
 from cache import cache
 
 
+API_KEY = "YOUR_API_KEY"  # 取得したAPIキーをここに入れる
 max_api_wait_time = 3
 max_time = 10
 apis = [r"https://iv.datura.network/",r"https://invidious.private.coffee/",r"https://invidious.protokolla.fi/",r"https://invidious.perennialte.ch/",r"https://yt.cdaut.de/",r"https://invidious.materialio.us/",r"https://yewtu.be/",r"https://invidious.fdn.fr/",r"https://inv.tux.pizza/",r"https://invidious.privacyredirect.com/",r"https://invidious.drgns.space/",r"https://vid.puffyan.us",r"https://invidious.jing.rocks/",r"https://youtube.076.ne.jp/",r"https://vid.puffyan.us/",r"https://inv.riverside.rocks/",r"https://invidio.xamh.de/",r"https://y.com.sb/",r"https://invidious.sethforprivacy.com/",r"https://invidious.tiekoetter.com/",r"https://inv.bp.projectsegfau.lt/",r"https://inv.vern.cc/",r"https://invidious.nerdvpn.de/",r"https://inv.privacy.com.de/",r"https://invidious.rhyshl.live/",r"https://invidious.slipfox.xyz/",r"https://invidious.weblibre.org/",r"https://invidious.namazso.eu/",r"https://invidious.jing.rocks"]
@@ -102,8 +103,48 @@ def get_info(request):
     
 def get_data(videoid):
     global logs
-    t = json.loads(apirequest(r"api/v1/videos/"+ urllib.parse.quote(videoid)))
-    return [{"id":i["videoId"],"title":i["title"],"authorId":i["authorId"],"author":i["author"]} for i in t["recommendedVideos"]],list(reversed([i["url"] for i in t["formatStreams"]]))[:2],t["descriptionHtml"].replace("\n","<br>"),t["title"],t["authorId"],t["author"],t["authorThumbnails"][-1]["url"]
+    
+    # YouTube APIを使って動画データを取得
+    url = f"https://www.googleapis.com/youtube/v3/videos?id={videoid}&key={API_KEY}&part=snippet"
+    response = requests.get(url)
+    t = response.json()
+    
+    # 動画が見つからない場合のエラーチェック
+    if "items" not in t or len(t["items"]) == 0:
+        return {"error": "Video not found"}
+    
+    video_data = t["items"][0]["snippet"]
+    
+    # 必要な情報を抽出
+    title = video_data["title"]
+    author = video_data["channelTitle"]
+    author_id = video_data["channelId"]
+    author_thumbnails = video_data.get("thumbnails", {}).get("high", {}).get("url", "")
+    
+    # 関連動画情報を取得するためにsearch APIを使用
+    search_url = f"https://www.googleapis.com/youtube/v3/search?relatedToVideoId={videoid}&key={API_KEY}&type=video&part=snippet"
+    search_response = requests.get(search_url)
+    search_data = search_response.json()
+
+    recommended_videos = []
+    
+    # 関連動画の情報をリストに追加
+    for item in search_data.get("items", []):
+        related_video = item["snippet"]
+        recommended_videos.append({
+            "id": item["id"]["videoId"],
+            "title": related_video["title"],
+            "authorId": related_video["channelId"],
+            "author": related_video["channelTitle"]
+        })
+    
+    return {
+        "title": title,
+        "author": author,
+        "authorId": author_id,
+        "authorThumbnails": author_thumbnails,
+        "recommendedVideos": recommended_videos
+    }
 
 def get_search(q,page):
     global logs
