@@ -231,16 +231,23 @@ def home(response: Response,request: Request,yuki: Union[str] = Cookie(None)):
         return template("home.html",{"request": request})
     return redirect("/blog")
 
-@app.get('/watch', response_class=HTMLResponse)
-def video(v:str,response: Response,request: Request,yuki: Union[str] = Cookie(None),proxy: Union[str] = Cookie(None)):
-    if not(check_cokie(yuki)):
-        return redirect("/")
-    response.set_cookie(key="yuki", value="True",max_age=7*24*60*60)
-    videoid = v
-    t = get_data(videoid)
-    response.set_cookie("yuki","True",max_age=60 * 60 * 24 * 7)
-    return template('video.html', {"request": request,"videoid":videoid,"videourls":t[1],"res":t[0],"description":t[2],"videotitle":t[3],"authorid":t[4],"authoricon":t[6],"author":t[5],"proxy":proxy})
-
+@app.route('/watch')
+def watch():
+    """動画情報を取得してvideolinkを代入"""
+    videoid = request.args.get('v')  # ?v=videoidの形式でvideoidを取得
+    if not videoid:
+        return "Error: videoid not provided", 400
+    # 取得した情報をテンプレートに渡してレンダリング
+    return render_template(
+        'video.html', 
+        videoid=videoid,
+        videotitle=video_data["title"],
+        author=video_data["author"],
+        authorid=video_data["authorId"],
+        authoricon=video_data["authorThumbnails"],
+        description=video_data["description"],
+        res=video_data["recommendedVideos"]
+        
 @app.get("/search", response_class=HTMLResponse,)
 def search(q:str,response: Response,request: Request,page:Union[int,None]=1,yuki: Union[str] = Cookie(None),proxy: Union[str] = Cookie(None)):
     if not(check_cokie(yuki)):
