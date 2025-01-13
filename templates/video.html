@@ -77,7 +77,6 @@
                 <video style="outline:none;width:100%;background-color:#000;" playsinline="" poster="https://img.youtube.com/vi/{{ videoid }}/0.jpg" id="player" class="on-video_player video-js player-style-invidious" controls="" loadedmetadata="settime()" loop="">
                     <source src="https://inv-ca1-c.nadeko.net/latest_version?id={{videoid}}&itag=18">
                 </video>
-                </video>
             </div>
             <div class="h-box">
                 <h1>{{ videotitle }}</h1>
@@ -113,14 +112,14 @@
                     <!--自動再生<input type="checkbox" id="autonext" onchange="checkautoplay()"><br>-->
                     ループ再生<input type="checkbox" id="loop" onchange="changeloop()">
                     {% for re in res %}
-                    <a href="/watch?v={{ re['id'] }}">
+                    <a href="/watch?v={{ relationshipid }}">
 
                         <div class="thumbnail">
-                            <img loading="lazy" class="thumbnail" src="https://img.youtube.com/vi/{{ re['id'] }}/0.jpg">
+                            <img loading="lazy" class="thumbnail" src="https://img.youtube.com/vi/{{ relationshipid }}/0.jpg">
                         </div>
-                        <p style="width:100%">{{re["title"]}}</p>
+                        <p style="width:100%">{{ relationshiptitle }}</p>
                     </a><br>
-                    <a href="/channel/{{re['authorId']}}">{{re["author"]}}</a>{% endfor %}
+                    <a href="/channel/{{ relationshipauthorId}}">{{ relationshipauthor }}</a>{% endfor %}
                 </div>
             </div>
         </div>
